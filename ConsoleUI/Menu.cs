@@ -6,52 +6,68 @@ using System.Text;
 using System.Threading.Tasks;
 using static ConsoleUI.Models.Enums;
 
-namespace ConsoleUI
+namespace ConsoleUI;
+
+internal class Menu
 {
-    internal class Menu
+    internal static void MainMenu()
     {
-        internal static void MainMenu()
+        bool repeatMenu = true;
+        while (repeatMenu == true)
         {
-            bool repeatMenu = true;
-            while (repeatMenu == true)
+
+            repeatMenu = false;
+            Console.Clear();
+
+            var selection = AnsiConsole.Prompt(
+                new SelectionPrompt<MenuSelection>()
+                    .Title("Welcome to [green]Habit tracker[/]\nWhat would you like to do?")
+                    .PageSize(10)
+                    .MoreChoicesText("")
+                    .AddChoices(MenuSelection.CreateHabit,
+                                MenuSelection.ViewAllRecords,
+                                MenuSelection.InsertRecord,
+                                MenuSelection.DeleteRecord,
+                                MenuSelection.UpdateRecord,
+                                MenuSelection.CloseApplication)
+                                );
+
+            switch (selection)
             {
-
-                repeatMenu = false;
-                Console.Clear();
-
-                var selection = AnsiConsole.Prompt(
-                    new SelectionPrompt<MenuSelection>()
-                        .Title("Welcome to [green]Habit tracker[/]\nWhat would you like to do?")
-                        .PageSize(10)
-                        .MoreChoicesText("")
-                        .AddChoices(MenuSelection.ViewAllRecords,
-                                    MenuSelection.InsertRecord,
-                                    MenuSelection.DeleteRecord,
-                                    MenuSelection.UpdateRecord,
-                                    MenuSelection.CloseApplication)
-                                    );
-
-                switch (selection)
-                {
-                    case MenuSelection.ViewAllRecords:
-                        break;
-                    case MenuSelection.InsertRecord:
-                        break;
-                    case MenuSelection.DeleteRecord:
-                        break;
-                    case MenuSelection.UpdateRecord:
-                        break;
-                    case MenuSelection.CloseApplication:
-                        if (!AnsiConsole.Confirm("Are you sure you want to exit?"))
-                        {
-                            repeatMenu = true;
-                        }
-                        else
-                        {
-                            Console.WriteLine("\nGoodbye!");
-                        }
-                        break;
-                }
+                case MenuSelection.CreateHabit:
+                    DbMethods.CreateHabit(AnsiConsole.Ask<string>("Enter a new habit name:"), 
+                                          AnsiConsole.Ask<string>("Enter a unit of measurement:")
+                                          );
+                    MainMenu();
+                    break;
+                case MenuSelection.ViewAllRecords:
+                    DbMethods.GetAllRecords(Helpers.GetHabitByName("Select a habit to preview records."));
+                    Console.Write("Press any key to continue...");
+                    Console.ReadKey();
+                    MainMenu();
+                    break;
+                case MenuSelection.InsertRecord:
+                    DbMethods.Insert(Helpers.GetHabitByName("Select a habit to insert a new record."));
+                    MainMenu();
+                    break;
+                case MenuSelection.DeleteRecord:
+                    DbMethods.Delete(Helpers.GetHabitByName("Select a habit to delete records from."));
+                    MainMenu();
+                    break;
+                case MenuSelection.UpdateRecord:
+                    DbMethods.Update(Helpers.GetHabitByName("Select a habit to update records."));
+                    MainMenu();
+                    break;
+                case MenuSelection.CloseApplication:
+                    if (AnsiConsole.Confirm("Are you sure you want to exit?"))
+                    {
+                        Console.WriteLine("\nGoodbye!");
+                    }
+                    else
+                    {
+                        repeatMenu = true;
+                    }
+                    break;
             }
         }
     }

@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleUI.Models
+namespace ConsoleUI.Models;
+
+internal class Enums
 {
-    internal class Enums
+    public enum MenuSelection
     {
-        public enum MenuSelection
-        {
-            ViewAllRecords,
-            InsertRecord,
-            DeleteRecord,
-            UpdateRecord,
-            CloseApplication
-        }
+        CreateHabit,
+        ViewAllRecords,
+        InsertRecord,
+        DeleteRecord,
+        UpdateRecord,
+        CloseApplication
     }
 }
