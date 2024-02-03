@@ -1,13 +1,6 @@
 ﻿using ConsoleUI.Models;
 using Microsoft.Data.Sqlite;
-using Spectre.Console;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ConsoleUI;
 
@@ -31,6 +24,69 @@ internal class DbMethods
 
             tableCmd.ExecuteNonQuery();
 
+            tableCmd.CommandText =
+                @"CREATE TABLE IF NOT EXISTS exercising (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Date TEXT,
+                        Minutes INTEGER
+                        )";
+
+            tableCmd.ExecuteNonQuery();
+
+            tableCmd.CommandText =
+                @"CREATE TABLE IF NOT EXISTS meditation (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Date TEXT,
+                        Minutes INTEGER
+                        )";
+
+            tableCmd.ExecuteNonQuery();
+
+            tableCmd.CommandText =
+                @"CREATE TABLE IF NOT EXISTS push_ups (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Date TEXT,
+                        Quantity INTEGER
+                        )";
+
+            tableCmd.ExecuteNonQuery();
+
+            tableCmd.CommandText =
+                @"CREATE TABLE IF NOT EXISTS studying (
+                        Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Date TEXT,
+                        Minutes INTEGER
+                        )";
+
+            tableCmd.ExecuteNonQuery();
+
+            connection.Close();
+        }
+    }
+
+    internal static void SeedDatabase()
+    {
+        using (var connection = new SqliteConnection(connectionString))
+        {
+            var habits = DataGenerator.GenerateHabitData();
+
+            var habitNames = GetAllHabits();
+
+            connection.Open();
+
+            var seedCmd = connection.CreateCommand();
+
+            foreach (var name in habitNames)
+            {
+                if (!RecordsExist(name))
+                {
+                    foreach (var h in habits)
+                    {
+                        seedCmd.CommandText = $"INSERT INTO {name} (date, {GetHabitValue(name)}) VALUES ('{h.Date.ToString("yy-MM-dd")}', {h.Value})";
+                        seedCmd.ExecuteNonQuery();
+                    }
+                }
+            }
             connection.Close();
         }
     }
@@ -240,8 +296,6 @@ internal class DbMethods
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
         }
-
-
     }
 
     internal static void Update(string habitName)
@@ -290,8 +344,6 @@ internal class DbMethods
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
         }
-
-
     }
 }
 
