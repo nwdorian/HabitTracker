@@ -68,7 +68,6 @@ internal class DbMethods
     {
         using (var connection = new SqliteConnection(connectionString))
         {
-            var habits = DataGenerator.GenerateHabitData();
 
             var habitNames = GetAllHabits();
 
@@ -80,6 +79,8 @@ internal class DbMethods
             {
                 if (!RecordsExist(name))
                 {
+                    var habits = DataGenerator.GenerateHabitData();
+
                     foreach (var h in habits)
                     {
                         seedCmd.CommandText = $"INSERT INTO {name} (date, {GetHabitValue(name)}) VALUES ('{h.Date.ToString("yy-MM-dd")}', {h.Value})";
@@ -180,6 +181,9 @@ internal class DbMethods
 
             if (habitData.Any())
             {
+                Console.Clear();
+                Console.WriteLine("\x1b[3J");
+                Console.Clear();
                 Console.WriteLine($"Records for {habitName}");
                 Console.WriteLine("------------------------------");
 
@@ -343,6 +347,61 @@ internal class DbMethods
         {
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
+        }
+    }
+
+    internal static void GetWeeklyRecords(string habitName)
+    {
+        List<Habit> habitData = new List<Habit>();
+
+        var date = DateTime.Now.AddDays(-7);
+
+        using (var connection = new SqliteConnection(connectionString))
+        {
+            connection.Open();
+
+            var tableCmd = connection.CreateCommand();
+
+            tableCmd.CommandText = $"SELECT * FROM {habitName} WHERE Date >= '{date.ToString("yy-MM-dd")}' ORDER BY date";
+
+            SqliteDataReader reader = tableCmd.ExecuteReader();
+
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    habitData.Add(
+                        new Habit
+                        {
+                            Id = reader.GetInt32(0),
+                            Date = DateTime.ParseExact(reader.GetString(1), "yy-MM-dd", new CultureInfo("en-US")),
+                            Value = reader.GetInt32(2)
+                        }
+                    );
+                }
+            }
+            else
+            {
+                Console.WriteLine($"No rows found in {habitName}.");
+            }
+
+            connection.Close();
+
+            if (habitData.Any())
+            {
+                Console.Clear();
+                Console.WriteLine("\x1b[3J");
+                Console.Clear();
+                Console.WriteLine($"Records for {habitName}");
+                Console.WriteLine("------------------------------");
+
+                foreach (var h in habitData)
+                {
+                    Console.WriteLine($"{h.Id} - {h.Date.ToString("dd-MMM-yyyy")} - {GetHabitValue(habitName)}: {h.Value}");
+                }
+
+                Console.WriteLine("------------------------------\n");
+            }
         }
     }
 }

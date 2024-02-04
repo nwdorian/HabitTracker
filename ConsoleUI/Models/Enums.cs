@@ -9,6 +9,7 @@ internal class Enums
         InsertRecord,
         DeleteRecord,
         UpdateRecord,
+        WeeklyReport,
         CloseApplication
     }
 }

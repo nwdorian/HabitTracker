@@ -24,6 +24,7 @@ internal class Menu
                                 MenuSelection.InsertRecord,
                                 MenuSelection.DeleteRecord,
                                 MenuSelection.UpdateRecord,
+                                MenuSelection.WeeklyReport,
                                 MenuSelection.CloseApplication)
                                 );
 
@@ -51,6 +52,12 @@ internal class Menu
                     break;
                 case MenuSelection.UpdateRecord:
                     DbMethods.Update(Helpers.GetHabitByName("Select a habit to update records."));
+                    MainMenu();
+                    break;
+                case MenuSelection.WeeklyReport:
+                    DbMethods.GetWeeklyRecords(Helpers.GetHabitByName("Select a habit to preview past week of records."));
+                    Console.Write("Press any key to continue...");
+                    Console.ReadKey();
                     MainMenu();
                     break;
                 case MenuSelection.CloseApplication:
